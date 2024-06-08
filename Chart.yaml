@@ -4,6 +4,6 @@ description: Helm Chart Challenges to deploy classic CTF challenges on Kubernete
 maintainers:
 - name: Racoon
 name: controlplane-challenges
-icon: https://raw.githubusercontent.com/.github/assets/controlplane_icon.svg
+icon: https://raw.githubusercontent.com/Racoon-r/CTF-Challenges-Helm-Chart/main/.github/assets/controlplane_icon.svg
 type: application
 version: 0.2.0
