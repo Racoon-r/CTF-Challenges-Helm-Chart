@@ -1,0 +1,72 @@
+env:
+  HELM_EXPERIMENTAL_OCI: 1 #enable OCI support
+  HELM_VERSION_TO_INSTALL: v3.14.0 # version of HELM to install
+  GCR_IMAGE: ghcr.io/racoon-r/controlplane-challenges  #${{ github.repository }}
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  version:
+    name: publish gcr
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      
+      - name: Install helm
+        uses: Azure/setup-helm@v3
+        with:
+          # Version of helm
+          version: ${{ env.HELM_VERSION_TO_INSTALL }}
+      
+      - name: Read Helm Chart
+        id: chart
+        uses: jacobtomlinson/gha-read-helm-chart@0.1.3
+        with:
+          path: ./
+
+      - name: Update dependency helm charts
+        run: |
+          helm dependency update
+
+      - name: Login to gcr using helm
+        run: |
+          echo "$TOKEN" | helm registry login "$IMAGE" --username "$USERNAME" --password-stdin
+        env:
+          TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          IMAGE: "${{ env.GCR_IMAGE }}"
+          USERNAME: "${{ github.repository_owner }}"
+
+      - name: Prepare GPG key
+        run: |
+          gpg_dir=.cr-gpg
+          mkdir "$gpg_dir"
+          keyring="$gpg_dir/secring.gpg"
+          base64 -d <<< "$GPG_KEYRING_BASE64" > "$keyring" 
+          passphrase_file="$gpg_dir/passphrase"
+          echo "$GPG_PASSPHRASE" > "$passphrase_file"
+          echo "GPG_PASSPHRASE_FILE=$passphrase_file" >> "$GITHUB_ENV"
+          echo "GPG_KEYRING=$keyring" >> "$GITHUB_ENV"
+        env:
+          GPG_KEYRING_BASE64: "${{ secrets.GPG_KEYRING_BASE64 }}" #Referring secrets of github above
+          GPG_PASSPHRASE: "${{ secrets.GPG_PASSPHRASE }}"
+
+      - name: Package helm chart
+        run: |
+          helm package --sign --key "$GPG_KEY" --keyring "$GPG_KEYRING" --passphrase-file "$GPG_PASSPHRASE_FILE" "$WORKSPACE/" --destination "$WORKSPACE/" --version "$TAG"
+        env:
+          GPG_KEY: "${{ secrets.GPG_KEY }}"
+          WORKSPACE: "${{ github.workspace }}"
+          TAG: "0.2.0"
+
+      - name: Publish chart to gcr
+        run: |
+          helm push "$WORKSPACE/$NAME-$TAG.tgz" oci://$IMAGE
+        env:
+          WORKSPACE: "${{ github.workspace }}"
+          NAME: "${{ steps.chart.outputs.name }}"
+          TAG: "0.2.0"
+          IMAGE: "${{ env.GCR_IMAGE }}"

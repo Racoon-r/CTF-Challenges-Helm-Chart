@@ -1,0 +1,147 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "challenge.name" . }}
+  labels:
+    {{- include "challenge.labels.standard" . | nindent 4 }}
+  namespace: {{ include "challenge.namespace" . }}
+spec:
+  {{- if not .Values.challenge.autoscaling.enabled }}
+  replicas: {{ .Values.challenge.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "challenge.labels.matchLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "challenge.labels.standard" . | nindent 8 }}
+    spec:
+      {{- with .Values.challenge.image.pullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "challenge.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        {{- if .Values.database.enabled -}}
+        - name: {{ include "challenge.name" . }}-db
+          securityContext:
+            {{- .Values.database.securityContext | default toYaml .Values.securityContext | nindent 12 }}
+          image: {{ include "challenge.db.image" . | quote }}
+          imagePullPolicy: {{ .Values.database.image.pullPolicy }}
+          ports:
+          {{- range .Values.database.containerPorts }}
+            - name: {{ .name }}
+              containerPort: {{ .port }}
+              protocol: TCP
+          {{- end }}
+          {{- if eq .Values.database.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.database.livenessProbe.httpGetPath | default (first (index .Values.database.ingress.hosts 0).paths).path }}
+              port: {{ .Values.database.image.containerPorts }}
+            {{- with .Values.database.livenessProbe }}
+            initialDelaySeconds: {{ .initialDelaySeconds }}
+            periodSeconds: {{ .periodSeconds }}
+            timeoutSeconds: {{ .timeoutSeconds }}
+            failureThreshold: {{ .failureThreshold }}
+            successThreshold: {{ .successThreshold }}
+            {{- end }}
+          {{- end }}
+          {{- if .Values.database.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.database.readinessProbe.httpGetPath | default (first (index .Values.database.ingress.hosts 0).paths).path  }}
+              port: {{ .Values.database.image.containerPorts }}
+            {{- with .Values.database.readinessProbe }}
+            initialDelaySeconds: {{ .initialDelaySeconds }}
+            periodSeconds: {{ .periodSeconds }}
+            timeoutSeconds: {{ .timeoutSeconds }}
+            failureThreshold: {{ .failureThreshold }}
+            successThreshold: {{ .successThreshold }}
+            {{- end }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.database.resources | nindent 12 }}
+          {{- if .Values.database.volumeMounts }}
+          {{- with .Values.database.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- end }}
+        {{- end }}
+        - name: {{ include "challenge.name" . }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: {{ include "challenge.image" . | quote }}
+          imagePullPolicy: {{ .Values.challenge.image.pullPolicy }}
+          ports:
+          {{- range .Values.challenge.containerPorts }}
+            - name: {{ .name }}
+              containerPort: {{ .port }}
+              protocol: TCP
+          {{- end }}
+          {{- if .Values.challenge.livenessProbe.enabled }}
+          livenessProbe:
+            {{- if eq .Values.service.type "NodePort" }}
+            tcpSocket:
+              port: {{ .Values.challenge.livenessProbe.port }}
+            {{- else }}
+            httpGet:
+              path: {{ .Values.challenge.livenessProbe.httpGetPath | default (first (index .Values.ingress.hosts 0).paths).path  }}
+              port: {{ (index .Values.service.ports 0).port }}
+            {{- end }}
+            {{- with .Values.challenge.livenessProbe }}
+            initialDelaySeconds: {{ .initialDelaySeconds }}
+            periodSeconds: {{ .periodSeconds }}
+            timeoutSeconds: {{ .timeoutSeconds }}
+            failureThreshold: {{ .failureThreshold }}
+            successThreshold: {{ .successThreshold }}
+            {{- end }}
+          {{- end }}
+          {{- if .Values.challenge.readinessProbe.enabled }}
+          readinessProbe:
+            {{- if eq .Values.service.type "NodePort" }}
+            tcpSocket:
+              port: {{ .Values.challenge.readinessProbe.port }}
+            {{- else }}
+            httpGet:
+              path: {{ .Values.challenge.readinessProbe.httpGetPath | default (first (index .Values.ingress.hosts 0).paths).path  }}
+              port: {{ (index .Values.service.ports 0).port }}
+            {{- end }}
+            {{- with .Values.challenge.readinessProbe }}
+            initialDelaySeconds: {{ .initialDelaySeconds }}
+            periodSeconds: {{ .periodSeconds }}
+            timeoutSeconds: {{ .timeoutSeconds }}
+            failureThreshold: {{ .failureThreshold }}
+            successThreshold: {{ .successThreshold }}
+            {{- end }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- if .Values.volumeMounts }}
+          {{- with .Values.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- end }}
+      {{- if .Values.volumes}}
+      {{- with .Values.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,171 @@
+## @section challenge parameters
+##
+challenge:
+  name: "challenge"
+  ## Image registry/repository@digest
+  image:
+    registry: ""
+    repository: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: [] 
+    ## - name: registry-credentials
+    digest:
+  containerPorts: []
+    ## - name: tcp for netcat, http for web
+    ##   port: 4000
+
+  livenessProbe:
+    enabled: true
+    httpGetPath:
+    port: 4000
+    initialDelaySeconds: 1
+    periodSeconds: 5
+    timeoutSeconds: 10
+    failureThreshold: 5
+    ## Must be set to 1
+    successThreshold: 1
+
+  readinessProbe:
+    enabled: true
+    httpGetPath:
+    port: 4000
+    initialDelaySeconds: 1
+    periodSeconds: 5
+    timeoutSeconds: 10
+    failureThreshold: 5
+    ## Must be set to 1
+    successThreshold: 1
+
+  replicaCount: 1
+  
+  ## Default: Autoscaling disabled
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
+
+## @section database (optional)
+database:
+  enabled: false
+  name: "db"
+  image:
+    registry: ""
+    repository: ""
+    tag: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+    digest:
+  containerPorts:
+    - name: db
+      port: 3306
+
+  livenessProbe:
+    enabled:
+    httpGetPath:
+    port: 3306
+    initialDelaySeconds: 1
+    periodSeconds: 5
+    timeoutSeconds: 10
+    failureThreshold: 5
+    successThreshold: 5
+
+  readinessProbe:
+    enabled:
+    httpGetPath:
+    port: 3306
+    initialDelaySeconds: 1
+    periodSeconds: 5
+    timeoutSeconds: 10
+    failureThreshold: 5
+    successThreshold: 5
+
+  ## Ingresso of database
+  ingress:
+    enabled: true
+    className: ""
+    annotations: {}
+      ## kubernetes.io/ingress.class: nginx
+      ## kubernetes.io/tls-acme: "true"
+    hosts:
+    ## - host: db.host.fr
+    ##   paths:
+    ##     - path: /
+    ##       pathType: Prefix
+    ##       serviceName: db
+    ##       servicePort: 3306
+    tls: []
+
+  volumeMounts: []
+  ## For custom resources
+  resources: {}
+## @section service account
+serviceAccount:
+  ## SA should be already present
+  create: true
+  ## To mount a SA API credentials
+  automount: true
+  annotations: {}
+  name: "controlplane"
+
+## @section Security Context
+podSecurityContext: {}
+securityContext:
+  ## Drop all capabilities by default.
+  capabilities:
+   drop:
+   - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+  ## In case of NSJail container, privileged must be set to True
+  privileged: false
+
+## @section service
+service:
+  ## NodePort for TCP, ClusterIP for web
+  type: NodePort
+  ports:
+    - port: 4000
+      name: tcp
+      targetPort: tcp
+      nodePort: 30005
+
+## @section ingress
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    ## kubernetes.io/ingress.class: nginx
+    ## kubernetes.io/tls-acme: "true"
+  hosts:
+  ## - host: web.host.fr
+  ##   paths:
+  ##     - path: /
+  ##       pathType: Prefix
+  ##       serviceName: 
+  ##       servicePort: 8000
+  ## For HTTPS, Nginx Reverse Proxy is used
+  tls: []
+
+## For custom resources
+resources: {}
+
+## @section volumes
+volumes: []
+## - name: volume
+##   emptyDir:
+##   sizeLimit: 500Mi
+##     secret:
+##     secretName: mysecret
+##     optional: false
+
+volumeMounts: []
+## - name: app
+##   mountPath: "/app"
+##   readOnly: false
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
