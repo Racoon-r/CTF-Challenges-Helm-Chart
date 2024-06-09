@@ -1,5 +1,7 @@
 # CTF-Challenges-Helm-Chart
 
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/controlplane-challenges)](https://artifacthub.io/packages/search?repo=controlplane-challenges)
+
 Helm Chart to deploy challenges for CTF (cybersecurity competition). This will **not** create content, it will only deploy existing container image on a Kubernetes cluster. It comes with the ControlPlane project.
 
 ## Chart Details
