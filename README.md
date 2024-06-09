@@ -33,139 +33,137 @@ helm uninstall challenge-1 --namespace ctf-challs
 
 Check the `values.yml` to change parameters.
 
+## Parameters
+
 ### Challenge parameters
 
-| Name | Default value | Description |
-| -------- | -------- | ------- |
-| name | `""` | Challenge name |
-| image.registry | `""` | Challenge image registry |
-| image.repository | `""` | Challenge image repository |
-| image.pullSecrets | `[]` | Challenge image pull secrets |
-| image.pullPolicy | `IfNotPresent` | Challenge image pull policy |
-| image.tag | `""` | Challenge image tag |
-| image.digest | `[]` | Challenge image digest in the way `sha256:aaa`. It will override the tag |
-| containerPorts | `[]` | Challenge image listenning port(s) |
-| livenessProbe.enabled | `true` | Enable liveness probe |
-| livenessProbe.httpGetPath | `` | HTTP path to check for liveness probe (only for challenges with ingress) |
-| livenessProbe.port | `4000` | Port to check for liveness probe |
-| livenessProbe.initialDelaySeconds | `1` | Initial delay in seconds for liveness probe |
-| livenessProbe.periodSeconds | `10` | Frequency of check for
-liveness probe |
-| livenessProbe.timeoutSeconds | `10` | Time to wait before failure for liveness probe |
-| livenessProbe.failureThreshold | `5` | Number of failure allowed for liveness probe |
-| livenessProbe.successThreshold | `1` | Must be set to 1 |
-| readinessProbe.enabled | `true` | Enable readiness probe |
-| readinessProbe.httpGetPath | `` | HTTP path to check for readiness probe (only for challenges with ingress) |
-| readinessProbe.port | `4000` | Port to check for readiness probe |
-| readinessProbe.initialDelaySeconds | `1` | Initial delay in seconds for readiness probe |
-| readinessProbe.periodSeconds | `10` | Frequency of check for
-readiness probe |
-| readinessProbe.timeoutSeconds | `10` | Time to wait before failure for readiness probe |
-| readinessProbe.failureThreshold | `5` | Number of failure allowed for readiness probe |
-| readinessProbe.successThreshold | `1` | Must be set to 1 |
-| replicaCount | `1` | Set number of replicas. Override by autoscaling |
+| Name                                           | Description                                                            | Value             |
+| ---------------------------------------------- | ---------------------------------------------------------------------- | ----------------- |
+| `challenge.name`                               | Challenge name                                                         | `challenge`       |
+| `challenge.image.registry`                     | Challenge image registry                                               | `REGISTRY_NAME`   |
+| `challenge.image.repository`                   | Challenge image repository                                             | `REPOSITORY_NAME` |
+| `challenge.image.pullPolicy`                   | Challenge image pull policy                                            | `IfNotPresent`    |
+| `challenge.image.pullSecrets`                  | Challenge image pull secrets                                           | `[]`              |
+| `challenge.image.tag`                          | Challenge image tag                                                    | `latest`          |
+| `challenge.image.digest`                       | Challenge image digest in the way sha256:aaa. It will override the tag | `""`              |
+| `challenge.containerPorts`                     | Challenge image listenning port(s)                                     | `[]`              |
+| `challenge.livenessProbe.enabled`              | Enable liveness probe                                                  | `true`            |
+| `challenge.livenessProbe.httpGetPath`          | Path to access on the HTTP server                                      | `nil`             |
+| `challenge.livenessProbe.port`                 | Port for livenessProbe                                                 | `4000`            |
+| `challenge.livenessProbe.initialDelaySeconds`  | Initial delay seconds for livenessProbe                                | `1`               |
+| `challenge.livenessProbe.periodSeconds`        | Period seconds for livenessProbe                                       | `5`               |
+| `challenge.livenessProbe.timeoutSeconds`       | Timeout seconds for livenessProbe                                      | `10`              |
+| `challenge.livenessProbe.failureThreshold`     | Failure threshold for livenessProbe                                    | `5`               |
+| `challenge.livenessProbe.successThreshold`     | Success threshold for livenessProbe                                    | `1`               |
+| `challenge.readinessProbe.enabled`             | Enable readiness probe                                                 | `true`            |
+| `challenge.readinessProbe.httpGetPath`         | Path to access on the HTTP server                                      | `nil`             |
+| `challenge.readinessProbe.port`                | Port for readinessProbe                                                | `4000`            |
+| `challenge.readinessProbe.initialDelaySeconds` | Initial delay seconds for readinessProbe                               | `1`               |
+| `challenge.readinessProbe.periodSeconds`       | Period seconds for readinessProbe                                      | `5`               |
+| `challenge.readinessProbe.timeoutSeconds`      | Timeout seconds for readinessProbe                                     | `10`              |
+| `challenge.readinessProbe.failureThreshold`    | Failure threshold for readinessProbe                                   | `5`               |
+| `challenge.readinessProbe.successThreshold`    | Success threshold for readinessProbe                                   | `1`               |
+| `challenge.replicaCount`                       | Set number of replicas. Override by autoscaling                        | `1`               |
 
 ### Autoscaling parameters
 
-| Name | Default value | Description |
-| ----- | ---- | ---- |
-| autoscaling.enabled | `false` | Enable autoscaling with HPA |
-| autoscaling.minReplicas | `1` | Set minimum number of replicas |
-| autoscaling.maxReplicas | `3` | Set maximum numer of replicas |
-| autoscaling.targetCPUUtilizationPercentage | `80` | Percentage of CPU to reach |
-| autoscaling.targetMemoryUtilizationPercentage | `80` | Percentage of memory to reach |
+| Name                                                      | Description                    | Value   |
+| --------------------------------------------------------- | ------------------------------ | ------- |
+| `challenge.autoscaling.enabled`                           | Enable autoscaling with HPA    | `false` |
+| `challenge.autoscaling.minReplicas`                       | Set minimum number of replicas | `1`     |
+| `challenge.autoscaling.maxReplicas`                       | Set maximum numer of replicas  | `3`     |
+| `challenge.autoscaling.targetCPUUtilizationPercentage`    | Percentage of CPU to reach     | `80`    |
+| `challenge.autoscaling.targetMemoryUtilizationPercentage` | Percentage of memory to reach  | `80`    |
 
-### Database parameters
+### Database parameters (optional)
 
-| Name | Default value | Description |
-| ----- | ------ | ------ |
-| database.enabled | `false` | Enable database deployment |
-| <span>database.name</span> | `db` | Database name |
-| image.registry | `""` | Database image registry |
-| image.repository | `""` | Database image repository |
-| image.tag | `""` | Database image tag |
-| image.digest | `""` | Database image digest in the way `sha256:aa`. It will override tag |
-| image.pullPolicy | `IfNotPresent` | Database image pull policy |
-| image.pullSecrets | `[]` | Database image pull secrets |
-| image.containerPorts | `[name: db, port: 3306]` | Database container port |
-| livenessProbe.enabled | `true` | Enable liveness probe |
-| livenessProbe.httpGetPath | `` | HTTP path to check for liveness probe (only for database with ingress) |
-| livenessProbe.port | `3306` | Port to check for liveness probe |
-| livenessProbe.initialDelaySeconds | `1` | Initial delay in seconds for liveness probe |
-| livenessProbe.periodSeconds | `10` | Frequency of check for
-liveness probe |
-| livenessProbe.timeoutSeconds | `10` | Time to wait before failure for liveness probe |
-| livenessProbe.failureThreshold | `5` | Number of failure allowed for liveness probe |
-| livenessProbe.successThreshold | `1` | Must be set to 1 |
-| readinessProbe.enabled | `true` | Enable readiness probe |
-| readinessProbe.httpGetPath | `` | HTTP path to check for readiness probe (only for database with ingress) |
-| readinessProbe.port | `3306` | Port to check for readiness probe |
-| readinessProbe.initialDelaySeconds | `1` | Initial delay in seconds for readiness probe |
-| readinessProbe.periodSeconds | `10` | Frequency of check for
-readiness probe |
-| readinessProbe.timeoutSeconds | `10` | Time to wait before failure for readiness probe |
-| readinessProbe.failureThreshold | `5` | Number of failure allowed for readiness probe |
-| readinessProbe.successThreshold | `1` | Must be set to 1 |
-| ingress.enabled | `true` | Enable ingress for database |
-| ingress.className  `""` | Ingress class for database |
-| ingress.annotations | `{}` | Annotations for database |
-| ingress.hosts | `` | Host to access database |
-| ingress.tls | `[]` | Enable TLS configuration |
-| volumeMounts | `[]` | Volume to mount for database |
-| ressources | `{}` | Custom ressources for database |
+| Name                                          | Description                                                      | Value             |
+| --------------------------------------------- | ---------------------------------------------------------------- | ----------------- |
+| `database.enabled`                            | Enable database deployment                                       | `false`           |
+| `database.name`                               | Database name                                                    | `db`              |
+| `database.image.registry`                     | Database image registry                                          | `REGISTRY_NAME`   |
+| `database.image.repository`                   | Database image repository                                        | `REPOSITORY_NAME` |
+| `database.image.tag`                          | Database image tag                                               | `""`              |
+| `database.image.pullPolicy`                   | Database image pull policy                                       | `IfNotPresent`    |
+| `database.image.pullSecrets`                  | Database image pull secrets                                      | `[]`              |
+| `database.image.digest`                       | Database image digest in the way sha256:aa. It will override tag | `nil`             |
+| `database.containerPorts[0].name`             | Container port name                                              | `db`              |
+| `database.containerPorts[0].port`             | Container port number                                            | `3306`            |
+| `database.livenessProbe.enabled`              | Enable liveness probe                                            | `nil`             |
+| `database.livenessProbe.httpGetPath`          | Path to access on the HTTP server                                | `nil`             |
+| `database.livenessProbe.port`                 | Port for livenessProbe                                           | `3306`            |
+| `database.livenessProbe.initialDelaySeconds`  | Initial delay seconds for livenessProbe                          | `1`               |
+| `database.livenessProbe.periodSeconds`        | Period seconds for livenessProbe                                 | `5`               |
+| `database.livenessProbe.timeoutSeconds`       | Timeout seconds for livenessProbe                                | `10`              |
+| `database.livenessProbe.failureThreshold`     | Failure threshold for livenessProbe                              | `5`               |
+| `database.livenessProbe.successThreshold`     | Success threshold for livenessProbe                              | `5`               |
+| `database.readinessProbe.enabled`             | Enable readiness probe                                           | `nil`             |
+| `database.readinessProbe.httpGetPath`         | Path to access on the HTTP server                                | `nil`             |
+| `database.readinessProbe.port`                | Port for readinessProbe                                          | `3306`            |
+| `database.readinessProbe.initialDelaySeconds` | Initial delay seconds for readinessProbe                         | `1`               |
+| `database.readinessProbe.periodSeconds`       | Period seconds for readinessProbe                                | `5`               |
+| `database.readinessProbe.timeoutSeconds`      | Timeout seconds for readinessProbe                               | `10`              |
+| `database.readinessProbe.failureThreshold`    | Failure threshold for readinessProbe                             | `5`               |
+| `database.readinessProbe.successThreshold`    | Success threshold for readinessProbe                             | `5`               |
+| `database.ingress.enabled`                    | Enable ingress for database                                      | `true`            |
+| `database.ingress.className`                  | Ingress class for database                                       | `""`              |
+| `database.ingress.annotations`                | Annotations for database                                         | `{}`              |
+| `database.ingress.hosts`                      | Host to access database                                          | `nil`             |
+| `database.ingress.tls`                        | Enable TLS configuration                                         | `[]`              |
+| `database.volumeMounts`                       | Volume to mount for database                                     | `[]`              |
+| `database.resources`                          | Custom ressources for database                                   | `{}`              |
 
 ### Service account parameters
 
-| Name | Default value | Description |
-| ----- | ----- | ----- |
-| create | `true` | Create SA for the challenge |
-| automount | `true` | Mount SA API credentials |
-| annotations | `{}` | Annotations for SA |
-| name | `controlplane` | Name for SA. `default` is SA by default in Kubernetes namespace |
+| Name                         | Description                                                     | Value          |
+| ---------------------------- | --------------------------------------------------------------- | -------------- |
+| `serviceAccount.create`      | Create SA for the challenge                                     | `true`         |
+| `serviceAccount.automount`   | Mount SA API credentials                                        | `true`         |
+| `serviceAccount.annotations` | Annotations for SA                                              | `{}`           |
+| `serviceAccount.name`        | Name for SA. `default` is SA by default in Kubernetes namespace | `controlplane` |
 
-### Security context parameters
+### Security Context parameters
 
-| Name | Default value | Description |
-| ---- | ---- | ---- |
-| podSecurityContext | `` | Enabled pod security context |
-| securityContext.capabilities.drop | `[ALL]` | Drop all or specific capabilities |
-| securityContext.readOnlyRootFilesystem | `true` | Set root filesystem in read only - RO |
-| securityContext.runAsNonRoot | `true` | Run challenge container as non root |
-| securityContext.runAsUser | `1000` | Set UUID of user |
-| securityContext.privileged | `false` | Set to true for privileged challenge container |
+| Name                                     | Description                                    | Value     |
+| ---------------------------------------- | ---------------------------------------------- | --------- |
+| `podSecurityContext`                     | Enabled pod security context                   | `{}`      |
+| `securityContext.capabilities.drop`      | Drop all or specific capabilities              | `["ALL"]` |
+| `securityContext.readOnlyRootFilesystem` | Set root filesystem in read only - RO          | `true`    |
+| `securityContext.runAsNonRoot`           | Run challenge container as non root            | `true`    |
+| `securityContext.runAsUser`              | Set UUID of user                               | `1000`    |
+| `securityContext.privileged`             | Set to true for privileged challenge container | `false`   |
 
 ### Service parameters
 
-| Name | Default value | Description |
-| ----- | ----- | ----- |
-| type | `NodePort` | Service type. `NodePort` for classic TCP, `ClusterIP` for Web |
-| ports | `[port: 4000, name: tcp, targetPort: 4000, nodePort: 30005]` | Set port number, name and target port. A NodePort can be specified |
+| Name                          | Description                                                   | Value      |
+| ----------------------------- | ------------------------------------------------------------- | ---------- |
+| `service.type`                | Service type. `NodePort` for classic TCP, `ClusterIP` for Web | `NodePort` |
+| `service.ports[0].port`       | Port number                                                   | `4000`     |
+| `service.ports[0].name`       | Service name                                                  | `tcp`      |
+| `service.ports[0].targetPort` | Target port                                                   | `tcp`      |
+| `service.ports[0].nodePort`   | specific NodePort                                             | `30005`    |
 
 ### Ingress parameters
 
-| Name | Default value | Description |
-| ---- | ---- | ---- |
-| enabled | `false` | Enable ingress for Web challenges |
-| className | `""` | Class name |
-| annotations | `{}` | Custom annotations for ingress |
-| hosts[].host | `web.host.fr` | Hostname of Web challenge |
-| hosts[].paths[].path | `/` | Path of Web challenge |
-| hosts[].paths[].pathType | `Prefix` | Path type |
-| hosts[].paths[].serviceName | `""` | Name of service linked to deployment |
-| hosts[].paths[].servicePort | `8000` | Service port |
-| tls | `[]` | Enable TLS configuration |
+| Name                                    | Description                          | Value         |
+| --------------------------------------- | ------------------------------------ | ------------- |
+| `ingress.enabled`                       | Enable ingress for Web challenges    | `false`       |
+| `ingress.className`                     | Class name                           | `""`          |
+| `ingress.annotations`                   | Custom annotations for ingress       | `{}`          |
+| `ingress.hosts[0].host`                 | Hostname of Web challenge            | `web.host.fr` |
+| `ingress.hosts[0].paths[0].path`        | Path of Web challenge                | `/`           |
+| `ingress.hosts[0].paths[0].pathType`    | Path type                            | `Prefix`      |
+| `ingress.hosts[0].paths[0].serviceName` | Name of service linked to deployment | `nil`         |
+| `ingress.hosts[0].paths[0].servicePort` | Service port                         | `8000`        |
+| `ingress.tls`                           | Enable TLS configuration             | `[]`          |
 
 ### Other parameters
 
-| Name | Default value | Description |
-| ---- | ---- | ---- |
-| ressources | `{}` | Custom ressources |
-| volumes | `[]` | Add volume to challenge |
-| volumeMounts | `[]` | How to mount the volume |
-| nodeSelector | `{}` | Node to select |
-| tolerations | `[]` | Tolerations for pod assignment |
-| affinity | `{}` | Affinity for pod assignment |
-
----
-
-@Racoon-r
+| Name           | Description                    | Value |
+| -------------- | ------------------------------ | ----- |
+| `resources`    | Custom ressources              | `{}`  |
+| `volumes`      | Add volume to challenge        | `[]`  |
+| `volumeMounts` | How to mount the volume        | `[]`  |
+| `nodeSelector` | Node to select                 | `{}`  |
+| `tolerations`  | Tolerations for pod assignment | `[]`  |
+| `affinity`     | Affinity for pod assignment    | `{}`  |

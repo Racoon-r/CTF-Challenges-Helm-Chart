@@ -1,19 +1,46 @@
-## @section challenge parameters
-##
+## @section Challenge parameters
+## 
+
 challenge:
+  ## @param challenge.name Challenge name
+  ## @param challenge.image.registry [default: REGISTRY_NAME] Challenge image registry
+  ## @param challenge.image.repository [default: REPOSITORY_NAME] Challenge image repository
+  ## @param challenge.image.pullPolicy Challenge image pull policy
+  ## @param challenge.image.pullSecrets Challenge image pull secrets
+  ## @param challenge.image.tag Challenge image tag
+  ## @param challenge.image.digest Challenge image digest in the way sha256:aaa. It will override the tag
+  ##
   name: "challenge"
-  ## Image registry/repository@digest
   image:
     registry: ""
     repository: ""
     pullPolicy: IfNotPresent
-    pullSecrets: [] 
+    pullSecrets: []
+    ## Specify a imagePullSecrets. Must be manually created in the namespace.
+    ## e.g.:
+    ## pullSecrets:
     ## - name: registry-credentials
-    digest:
+    ##
+    tag: latest
+    digest: ""
+  ## @param challenge.containerPorts Challenge image listenning port(s)
+  ##
   containerPorts: []
-    ## - name: tcp for netcat, http for web
-    ##   port: 4000
-
+  ## List of container ports. Name must be set to tcp for Netcat challenge, or http for Web.
+  ## e.g.:
+  ## containerPorts:
+  ## - name: tcp for netcat, http for web
+  ##   port: 4000
+  
+  ## @param challenge.livenessProbe.enabled Enable liveness probe
+  ## @param challenge.livenessProbe.httpGetPath Path to access on the HTTP server
+  ## @param challenge.livenessProbe.port Port for livenessProbe
+  ## @param challenge.livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+  ## @param challenge.livenessProbe.periodSeconds Period seconds for livenessProbe
+  ## @param challenge.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+  ## @param challenge.livenessProbe.failureThreshold Failure threshold for livenessProbe
+  ## @param challenge.livenessProbe.successThreshold Success threshold for livenessProbe
+  ##
   livenessProbe:
     enabled: true
     httpGetPath:
@@ -23,8 +50,18 @@ challenge:
     timeoutSeconds: 10
     failureThreshold: 5
     ## Must be set to 1
+    ##
     successThreshold: 1
 
+  ## @param challenge.readinessProbe.enabled Enable readiness probe
+  ## @param challenge.readinessProbe.httpGetPath Path to access on the HTTP server
+  ## @param challenge.readinessProbe.port Port for readinessProbe
+  ## @param challenge.readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+  ## @param challenge.readinessProbe.periodSeconds Period seconds for readinessProbe
+  ## @param challenge.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+  ## @param challenge.readinessProbe.failureThreshold Failure threshold for readinessProbe
+  ## @param challenge.readinessProbe.successThreshold Success threshold for readinessProbe
+  ##
   readinessProbe:
     enabled: true
     httpGetPath:
@@ -34,11 +71,22 @@ challenge:
     timeoutSeconds: 10
     failureThreshold: 5
     ## Must be set to 1
+    ##
     successThreshold: 1
 
+  ## @param challenge.replicaCount Set number of replicas. Override by autoscaling
+  ##
   replicaCount: 1
   
-  ## Default: Autoscaling disabled
+  ## @section Autoscaling parameters
+  ## 
+
+  ## @param challenge.autoscaling.enabled Enable autoscaling with HPA
+  ## @param challenge.autoscaling.minReplicas Set minimum number of replicas
+  ## @param challenge.autoscaling.maxReplicas Set maximum numer of replicas
+  ## @param challenge.autoscaling.targetCPUUtilizationPercentage Percentage of CPU to reach
+  ## @param challenge.autoscaling.targetMemoryUtilizationPercentage Percentage of memory to reach
+  ##
   autoscaling:
     enabled: false
     minReplicas: 1
@@ -46,21 +94,51 @@ challenge:
     targetCPUUtilizationPercentage: 80
     targetMemoryUtilizationPercentage: 80
 
-## @section database (optional)
+## @section Database parameters (optional)
+##
+
 database:
+  ## @param database.enabled Enable database deployment
+  ##
   enabled: false
+  ## @param database.name Database name
+  ##
   name: "db"
+  ## @param database.image.registry [default: REGISTRY_NAME] Database image registry
+  ## @param database.image.repository [default: REPOSITORY_NAME] Database image repository
+  ## @param database.image.tag Database image tag
+  ## @param database.image.pullPolicy Database image pull policy
+  ## @param database.image.pullSecrets Database image pull secrets
+  ## @param database.image.digest Database image digest in the way sha256:aa. It will override tag
+  ##
   image:
     registry: ""
     repository: ""
     tag: ""
     pullPolicy: IfNotPresent
     pullSecrets: []
+    ## List of secrets. Must be manually created in namespace.
+    ## e.g.:
+    ## pullSecrets:
+    ## - name: registry-credentials
+    ##
     digest:
+  ## @param database.containerPorts[0].name Container port name
+  ## @param database.containerPorts[0].port Container port number
+  ##
   containerPorts:
     - name: db
       port: 3306
 
+  ## @param database.livenessProbe.enabled Enable liveness probe
+  ## @param database.livenessProbe.httpGetPath Path to access on the HTTP server
+  ## @param database.livenessProbe.port Port for livenessProbe
+  ## @param database.livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+  ## @param database.livenessProbe.periodSeconds Period seconds for livenessProbe
+  ## @param database.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+  ## @param database.livenessProbe.failureThreshold Failure threshold for livenessProbe
+  ## @param database.livenessProbe.successThreshold Success threshold for livenessProbe
+  ##
   livenessProbe:
     enabled:
     httpGetPath:
@@ -71,6 +149,15 @@ database:
     failureThreshold: 5
     successThreshold: 5
 
+  ## @param database.readinessProbe.enabled Enable readiness probe
+  ## @param database.readinessProbe.httpGetPath Path to access on the HTTP server
+  ## @param database.readinessProbe.port Port for readinessProbe
+  ## @param database.readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+  ## @param database.readinessProbe.periodSeconds Period seconds for readinessProbe
+  ## @param database.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+  ## @param database.readinessProbe.failureThreshold Failure threshold for readinessProbe
+  ## @param database.readinessProbe.successThreshold Success threshold for readinessProbe
+  ##
   readinessProbe:
     enabled:
     httpGetPath:
@@ -81,13 +168,22 @@ database:
     failureThreshold: 5
     successThreshold: 5
 
-  ## Ingresso of database
+  ## @param database.ingress.enabled Enable ingress for database
+  ## @param database.ingress.className Ingress class for database
+  ## @param database.ingress.annotations Annotations for database
+  ## @param database.ingress.hosts Host to access database
+  ## @param database.ingress.tls Enable TLS configuration
+  ##
   ingress:
     enabled: true
     className: ""
     annotations: {}
-      ## kubernetes.io/ingress.class: nginx
-      ## kubernetes.io/tls-acme: "true"
+    ## Custom annotations
+    ## e.g.:
+    ## annotations:
+    ##  kubernetes.io/ingress.class: nginx
+    ##  kubernetes.io/tls-acme: "true"
+    ##
     hosts:
     ## - host: db.host.fr
     ##   paths:
@@ -95,24 +191,45 @@ database:
     ##       pathType: Prefix
     ##       serviceName: db
     ##       servicePort: 3306
+    ##
     tls: []
-
+  
+  ## @param database.volumeMounts Volume to mount for database
+  ##
   volumeMounts: []
-  ## For custom resources
+  ## @param database.resources Custom ressources for database
+  ##
   resources: {}
-## @section service account
+
+## @section Service account parameters
+##
 serviceAccount:
-  ## SA should be already present
+  ## @param serviceAccount.create Create SA for the challenge
+  ##
   create: true
-  ## To mount a SA API credentials
+  ## @param serviceAccount.automount Mount SA API credentials
+  ##
   automount: true
+  ## @param serviceAccount.annotations Annotations for SA
+  ##
   annotations: {}
+  ## @param serviceAccount.name Name for SA. `default` is SA by default in Kubernetes namespace
+  ##
   name: "controlplane"
 
-## @section Security Context
+## @section Security Context parameters
+##
+
+## @param podSecurityContext Enabled pod security context
+##
 podSecurityContext: {}
+## @param securityContext.capabilities.drop Drop all or specific capabilities
+## @param securityContext.readOnlyRootFilesystem Set root filesystem in read only - RO
+## @param securityContext.runAsNonRoot Run challenge container as non root
+## @param securityContext.runAsUser Set UUID of user
+## @param securityContext.privileged Set to true for privileged challenge container
+##
 securityContext:
-  ## Drop all capabilities by default.
   capabilities:
    drop:
    - ALL
@@ -120,52 +237,89 @@ securityContext:
   runAsNonRoot: true
   runAsUser: 1000
   ## In case of NSJail container, privileged must be set to True
+  ##  
   privileged: false
 
-## @section service
+## @section Service parameters
+##
 service:
-  ## NodePort for TCP, ClusterIP for web
+  ## @param service.type Service type. `NodePort` for classic TCP, `ClusterIP` for Web
+  ##
   type: NodePort
+  ## @param service.ports[0].port Port number
+  ## @param service.ports[0].name Service name
+  ## @param service.ports[0].targetPort Target port
+  ## @param service.ports[0].nodePort specific NodePort
+  ##
   ports:
     - port: 4000
       name: tcp
       targetPort: tcp
       nodePort: 30005
 
-## @section ingress
+## @section Ingress parameters
+##
 ingress:
+  ## @param ingress.enabled Enable ingress for Web challenges
+  ##
   enabled: false
+  ## @param ingress.className Class name
+  ##
   className: ""
+  ## @param ingress.annotations Custom annotations for ingress
+  ##
   annotations: {}
-    ## kubernetes.io/ingress.class: nginx
-    ## kubernetes.io/tls-acme: "true"
+  ## e.g.:
+  ## annotations:
+  ##   kubernetes.io/ingress.class: nginx
+  ##   kubernetes.io/tls-acme: "true"
+  ##
+  ## @param ingress.hosts[0].host Hostname of Web challenge
+  ## @param ingress.hosts[0].paths[0].path Path of Web challenge
+  ## @param ingress.hosts[0].paths[0].pathType Path type
+  ## @param ingress.hosts[0].paths[0].serviceName Name of service linked to deployment
+  ## @param ingress.hosts[0].paths[0].servicePort Service port
+  ##
   hosts:
-  ## - host: web.host.fr
-  ##   paths:
-  ##     - path: /
-  ##       pathType: Prefix
-  ##       serviceName: 
-  ##       servicePort: 8000
-  ## For HTTPS, Nginx Reverse Proxy is used
+  - host: web.host.fr
+    paths:
+      - path: /
+        pathType: Prefix
+        serviceName: 
+        servicePort: 8000
+  ## @param ingress.tls Enable TLS configuration
+  ##
   tls: []
 
-## For custom resources
-resources: {}
 
-## @section volumes
+## @section Other parameters
+##
+
+## @param resources Custom ressources
+##
+resources: {}
+## @param volumes Add volume to challenge
+##
 volumes: []
 ## - name: volume
 ##   emptyDir:
 ##   sizeLimit: 500Mi
-##     secret:
-##     secretName: mysecret
-##     optional: false
+##
 
+## @param volumeMounts How to mount the volume
+##
 volumeMounts: []
 ## - name: app
 ##   mountPath: "/app"
 ##   readOnly: false
+##
 
+## @param nodeSelector Node to select
+##
 nodeSelector: {}
+## @param tolerations Tolerations for pod assignment
+##
 tolerations: []
+## @param affinity Affinity for pod assignment
+##
 affinity: {}
